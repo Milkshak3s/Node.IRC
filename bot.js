@@ -3,6 +3,10 @@ var net = require('net'),
 
 var sock = net.Socket();
 
+var channel = '#jules99',
+    version = '0.2a',
+    debug = 'Active';
+
 function parseMsg(line) {
 	line = line.trim();
 	var prefix = '',
@@ -44,36 +48,79 @@ function parseMsg(line) {
 };
 
 sock.connect(6667, 'irc.freenode.net', function () {
-	var rl = readline.createInterface({
-		input: sock,
-		output: sock
-	});
-	rl.on('line', function (line) {
-		console.log(line.trim());
-		var msg = parseMsg(line);
-		console.log('Prefix: ' + msg.prefix);
-		console.log('Nick:   ' + msg.nick);
-		console.log('Command:' + msg.command)
-		console.log('Args:   ' + msg.args.join(', '));
-		console.log('Value:  ' + msg.value);
-		console.log(' '); 
-		
-		if (msg.value == 'hi') {
-			sock.write('PRIVMSG ' + '#jules99' + ' :Hello, ' + msg.nick + '\n\r');
-			console.log('PRIVMSG ' + '#jules99' + ' :Hello, ' + msg.nick);
-		}
-		
-		switch (msg.command) {
-			case 'PING':
-				sock.write('PONG :' + msg.value);
-				console.log('PONG :' + msg.value);
-				break;
-		}
-	});
-	sock.write('NICK SkidBot_1227\r\n');
-	console.log('NICK SkidBot_1227');
-	sock.write('USER TheSkidBot_1227 8 * :The SkidBot_1227\r\n');
-	console.log('USER TheSkidBot_1227 8 * :The SkidBot_1227');
-	sock.write('JOIN #jules99\r\n');
-	console.log('JOIN #jules99')
+    var rl = readline.createInterface({
+        input: sock,
+        output: sock
+    });
+    rl.on('line', function (line) {
+        console.log(line.trim());
+        var msg = parseMsg(line);
+        console.log('Prefix: ' + msg.prefix);
+        console.log('Nick:   ' + msg.nick);
+        console.log('Command:' + msg.command)
+        console.log('Args:   ' + msg.args.join(', '));
+        console.log('Value:  ' + msg.value);
+        console.log(' ');
+
+        //Hi's and hello
+        switch (msg.value) {
+            case 'hi':
+            case 'Hi':
+            case 'Hello':
+            case 'hello':
+                sock.write('PRIVMSG ' + channel + ' :Hello, ' + msg.nick + '\n\r');
+                console.log('PRIVMSG ' + channel + ' :Hello, ' + msg.nick);
+                break;
+            default:
+                break;
+        }
+
+        //Info and debugging
+        switch (msg.value) {
+            case '!commands':
+                sock.write('PRIVMSG' + channel + ' :Hi, !commands, !version, !channel, !status, !SCP 001')
+                break;
+            case '!version':
+                sock.write('PRIVMSG ' + channel + ' :' + version + '\n\r');
+                console.log('Version Requested');
+                console.log('PRIVMSG ' + channel + ' :' + version);
+                break;
+            case '!channel':
+                sock.write('PRIVMSG ' + channel + ' :' + channel + '\n\r');
+                console.log('Channel Requested');
+                console.log('PRIVMSG ' + channel + ' :' + channel);
+                break;
+            case '!status':
+                sock.write('PRIVMSG ' + channel + ' :' + 'Connected to channel: ' + channel + ' Debug is: ' + debug + '\n\r');
+                console.log('Status Requested');
+                console.log('PRIVMSG ' + channel + ' :' + 'Connected to channel: ' + channel + ' Debug is: ' + debug);
+                break;
+            default:
+                break;
+        }
+
+        //SCP info
+        switch (msg.value) {
+            case '!SCP 001':
+                sock.write('PRIVMSG ' + channel + ' :CLASSIFIED' + '\n\r');
+                console.log('PRIVMSG ' + channel + ' :CLASSIFIED');
+                break;
+            default:
+                break;
+
+        }
+
+        switch (msg.command) {
+            case 'PING':
+                sock.write('PONG :' + msg.value);
+                console.log('PONG :' + msg.value);
+                break;
+        }
+    });
+    sock.write('NICK SkidBot_1227\r\n');
+    console.log('NICK SkidBot_1227');
+    sock.write('USER TheSkidBot_1227 8 * :The SkidBot_1227\r\n');
+    console.log('USER TheSkidBot_1227 8 * :The SkidBot_1227');
+    sock.write('JOIN #jules99\r\n');
+    console.log('JOIN #jules99')
 });
